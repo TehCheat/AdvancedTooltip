@@ -2,7 +2,7 @@ using ExileCore.Shared.Attributes;
 using ExileCore.Shared.Interfaces;
 using ExileCore.Shared.Nodes;
 
-namespace AdvancedTooltip
+namespace AdvancedTooltip.Settings
 {
     public class AdvancedTooltipSettings : ISettings
     {

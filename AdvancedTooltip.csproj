@@ -88,10 +88,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdvancedTooltipSettings.cs" />
+    <Compile Include="Settings\AdvancedTooltipSettings.cs" />
     <Compile Include="AdvancedTooltip.cs" />
-    <Compile Include="ItemLevelSettings.cs" />
-    <Compile Include="ItemModsSettings.cs" />
+    <Compile Include="Settings\ItemLevelSettings.cs" />
+    <Compile Include="Settings\ItemModsSettings.cs" />
     <Compile Include="ModValue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WeaponDpsSettings.cs" />
@@ -106,5 +106,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,8 +1,9 @@
+using ExileCore.Shared.Attributes;
 using ExileCore.Shared.Interfaces;
 using ExileCore.Shared.Nodes;
 using SharpDX;
 
-namespace AdvancedTooltip
+namespace AdvancedTooltip.Settings
 {
     public class ItemModsSettings : ISettings
     {
@@ -18,6 +19,8 @@ namespace AdvancedTooltip
             T3Color = new ColorBGRA(0, 255, 0, 255);
         }
 
+        [Menu("Enabled")]
+        public ToggleNode Enable { get; set; }
         public RangeNode<int> ModTextSize { get; set; }
         public ColorNode BackgroundColor { get; set; }
         public ColorNode PrefixColor { get; set; }
@@ -25,6 +28,5 @@ namespace AdvancedTooltip
         public ColorNode T1Color { get; set; }
         public ColorNode T2Color { get; set; }
         public ColorNode T3Color { get; set; }
-        public ToggleNode Enable { get; set; }
     }
 }

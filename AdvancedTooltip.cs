@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using AdvancedTooltip.Settings;
 using ExileCore;
+using ExileCore.PoEMemory;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements;
 using ExileCore.PoEMemory.MemoryObjects;
@@ -21,7 +23,7 @@ namespace AdvancedTooltip
         private List<ModValue> mods = new List<ModValue>();
         private long ModsHash;
         private Vector2N nextLine = Vector2N.Zero;
-        private readonly string symbol = " *";
+        private readonly string symbol = " X";
         private Color TColor;
         private Dictionary<int, Color> TColors;
 
@@ -64,6 +66,24 @@ namespace AdvancedTooltip
 
         public override void Render()
         {
+            DrawUiHover();
+            DrawOnGround();
+        }
+
+        private void DrawOnGround()
+        {
+            var element = GameController.Game.IngameState.IngameUi.ItemsOnGroundLabelElement;
+            var item = element.ItemOnHover;
+            if (item == null || item.Address == 0)
+                return;
+
+            item = item.GetComponent<WorldItem>()?.ItemEntity;
+
+            Draw(GameController.Game.IngameState.IngameUi.ItemOnGroundTooltip, item);
+        }
+
+        private void DrawUiHover()
+        {
             var uiHover = GameController.Game.IngameState.UIHover;
             if (uiHover?.Address == 0) return;
             var inventoryItemIcon = uiHover?.AsObject<HoverItemIcon>();
@@ -74,6 +94,11 @@ namespace AdvancedTooltip
             var tooltip = inventoryItemIcon.Tooltip;
             var poeEntity = inventoryItemIcon.Item;
 
+            Draw(tooltip, poeEntity);
+        }
+
+        private void Draw(Element tooltip, Entity poeEntity)
+        {
             if (tooltip == null || poeEntity == null || poeEntity.Address == 0) return;
 
             itemEntity = null;
@@ -101,7 +126,8 @@ namespace AdvancedTooltip
             {
                 var startPosition = tooltipRect.TopLeft.TranslateToNum(20, 56);
                 var t1 = mods.Count(item => item.CouldHaveTiers() && item.Tier == 1);
-                Graphics.DrawText(string.Concat(Enumerable.Repeat(symbol, t1)), startPosition, Settings.ItemMods.T1Color /*, "DFPT_B5_POE:15"*/);
+                Graphics.DrawText(string.Concat(Enumerable.Repeat(symbol, t1)), startPosition,
+                    Settings.ItemMods.T1Color /*, "DFPT_B5_POE:15"*/);
 
                 var t2 = mods.Count(item => item.CouldHaveTiers() && item.Tier == 2);
 
@@ -132,7 +158,7 @@ namespace AdvancedTooltip
                 modPosition = new Vector2(tooltipRect.X + 20, bottomTooltip + 4);
 
                 var height = mods?.Where(x => x.Record.StatNames.Count(y => y != null) > 0)
-                                 .Aggregate(modPosition, (position, item) => DrawMod(item, position)).Y - bottomTooltip ?? 0;
+                    .Aggregate(modPosition, (position, item) => DrawMod(item, position)).Y - bottomTooltip ?? 0;
 
                 if (height > 4)
                 {
