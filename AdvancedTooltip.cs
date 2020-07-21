@@ -81,7 +81,7 @@ namespace AdvancedTooltip
 
             item = item.GetComponent<WorldItem>()?.ItemEntity;
 
-            Draw(GameController.Game.IngameState.IngameUi.ItemOnGroundTooltip, item);
+            Draw(GameController.Game.IngameState.IngameUi.ItemOnGroundTooltip.Tooltip, item);
         }
 
         private void DrawUiHover()

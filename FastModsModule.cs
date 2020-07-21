@@ -54,7 +54,7 @@ namespace AdvancedTooltip
                     drawPos.Y += height;
                 }
             }
-            catch
+            catch (Exception e)
             {
                 //ignored   
             }
@@ -66,6 +66,10 @@ namespace AdvancedTooltip
             _regularModsElement = null;
 
             var modsRoot = tooltip.GetChildAtIndex(1);
+
+            if (modsRoot == null)
+                return;
+
             Element extendedModsElement = null;
             for (var i = modsRoot.Children.Count - 1; i >= 0; i--)
             {
@@ -109,46 +113,38 @@ namespace AdvancedTooltip
                 {
                     var isPrefix = extendedModsLine.Contains("Prefix");
                     var isSuffix = extendedModsLine.Contains("Suffix");
+
+                    if (!isPrefix && !isSuffix)
+                    {
+                        DebugWindow.LogMsg($"Cannot extract Affix type from mod text: {extendedModsLine}", 4);
+                        return;
+                    }
+
                     var affix = isPrefix ? "P" : "S";
                     var color = isPrefix ? _modsSettings.PrefixColor : _modsSettings.SuffixColor;
-              
 
-                    if (!extendedModsLine.Contains("Essences"))
+                    var isRank = false;
+                    const string TIER = "(Tier: ";
+                    var tierPos = extendedModsLine.IndexOf(TIER);
+                    if (tierPos != -1)
                     {
-                        var isRank = false;
-                        const string TIER = "(Tier: ";
-                        var tierPos = extendedModsLine.IndexOf(TIER);
+                        tierPos += TIER.Length;
+                    }
+                    else
+                    {
+                        const string RANK = "(Rank: ";
+                        tierPos = extendedModsLine.IndexOf(RANK);
+
                         if (tierPos != -1)
                         {
-                            tierPos += TIER.Length;
+                            tierPos += RANK.Length;
+                            isRank = true;
                         }
-                        else
-                        {
-                            const string RANK = "(Rank: ";
-                            tierPos = extendedModsLine.IndexOf(RANK);
+                    }
 
-                            if (tierPos != -1)
-                            {
-                                tierPos += RANK.Length;
-                                isRank = true;
-                            }
-                        }
-
-                        if (tierPos == -1)
-                        {
-                            DebugWindow.LogMsg($"Cannot extract tier from mod text: {extendedModsLine}", 4);
-                            return;
-                        }
-
-                        var tierStr = extendedModsLine.Substring(tierPos, 1);
-
-                        if (!int.TryParse(tierStr, out var tier))
-                        {
-                            DebugWindow.LogMsg($"Cannot parse mod tier from mod text: {extendedModsLine}", 4);
-                            return;
-                        }
-
-                        if(isRank)
+                    if (tierPos != -1 && int.TryParse(extendedModsLine.Substring(tierPos, 1), out var tier))
+                    {
+                        if (isRank)
                             affix += $" Rank{tier}";
                         else
                             affix += tier;
@@ -160,16 +156,7 @@ namespace AdvancedTooltip
                         else if (tier == 3)
                             color = _modsSettings.T3Color.Value;
                     }
-                    else
-                    {
-                        affix += "E";
-                    }
 
-                    if (!isPrefix && !isSuffix)
-                    {
-                        DebugWindow.LogMsg($"Cannot extract Affix type from mod text: {extendedModsLine}", 4);
-                        return;
-                    }
 
                     currentModTierInfo = new ModTierInfo(affix, color);
                     continue;
