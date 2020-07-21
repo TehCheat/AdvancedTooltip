@@ -26,6 +26,7 @@ namespace AdvancedTooltip
         private readonly string symbol = " X";
         private Color TColor;
         private Dictionary<int, Color> TColors;
+        private FastModsModule _fastMods;
 
         public override void OnLoad()
         {
@@ -35,6 +36,7 @@ namespace AdvancedTooltip
 
         public override bool Initialise()
         {
+            _fastMods = new FastModsModule(Graphics, Settings.ItemMods);
             TColors = new Dictionary<int, Color>
             {
                 {1, Settings.ItemMods.T1Color}, {2, Settings.ItemMods.T2Color}, {3, Settings.ItemMods.T3Color}
@@ -47,7 +49,7 @@ namespace AdvancedTooltip
                 if (keys == Keys.F9) Settings.ItemMods.Enable.Value = !Settings.ItemMods.Enable.Value;
             };
 
-            
+
             return true;
         }
 
@@ -97,6 +99,7 @@ namespace AdvancedTooltip
             Draw(tooltip, poeEntity);
         }
 
+
         private void Draw(Element tooltip, Entity poeEntity)
         {
             if (tooltip == null || poeEntity == null || poeEntity.Address == 0) return;
@@ -113,7 +116,8 @@ namespace AdvancedTooltip
             {
                 var itemMods = modsComponent?.ItemMods;
 
-                if (itemMods == null || itemMods.Any(x => string.IsNullOrEmpty(x.RawName) && string.IsNullOrEmpty(x.Name)))
+                if (itemMods == null ||
+                    itemMods.Any(x => string.IsNullOrEmpty(x.RawName) && string.IsNullOrEmpty(x.Name)))
                     return;
 
                 mods = itemMods?.Select(item => new ModValue(item, GameController.Files, modsComponent.ItemLevel,
@@ -136,7 +140,8 @@ namespace AdvancedTooltip
 
                 var t3 = mods.Count(item => item.CouldHaveTiers() && item.Tier == 3);
 
-                Graphics.DrawText(string.Concat(Enumerable.Repeat(symbol, t3)), startPosition.Translate(t1 * 14 + t2 * 14),
+                Graphics.DrawText(string.Concat(Enumerable.Repeat(symbol, t3)),
+                    startPosition.Translate(t1 * 14 + t2 * 14),
                     Settings.ItemMods.T3Color /*, "DFPT_B5_POE:15"*/);
             }
 
@@ -158,7 +163,8 @@ namespace AdvancedTooltip
                 modPosition = new Vector2(tooltipRect.X + 20, bottomTooltip + 4);
 
                 var height = mods?.Where(x => x.Record.StatNames.Count(y => y != null) > 0)
-                    .Aggregate(modPosition, (position, item) => DrawMod(item, position)).Y - bottomTooltip ?? 0;
+                        .Aggregate(modPosition, (position, item) => DrawMod(item, position)).Y -
+                    bottomTooltip ?? 0;
 
                 if (height > 4)
                 {
@@ -167,7 +173,11 @@ namespace AdvancedTooltip
                 }
             }
 
-            if (Settings.WeaponDps.Enable && poeEntity.HasComponent<Weapon>()) DrawWeaponDps(tooltipRect);
+            if (Settings.WeaponDps.Enable && poeEntity.HasComponent<Weapon>()) 
+                DrawWeaponDps(tooltipRect);
+
+            if(modsComponent != null && (modsComponent.ItemRarity == ItemRarity.Magic || modsComponent.ItemRarity == ItemRarity.Rare))
+                _fastMods.DrawUiHoverFastMods(tooltip);
         }
 
         private Vector2 DrawMod(ModValue item, Vector2 position)
@@ -244,7 +254,8 @@ namespace AdvancedTooltip
 
                     if (item.AffixType == ModType.Unique)
                     {
-                        txSize = Graphics.DrawText(statText, position.Translate(x + 30), Color.Gainsboro, FontAlign.Right);
+                        txSize = Graphics.DrawText(statText, position.Translate(x + 30), Color.Gainsboro,
+                            FontAlign.Right);
                         var drawText = Graphics.DrawText(line2, position.Translate(x + 40), Color.Gainsboro);
                     }
                     else
@@ -256,7 +267,9 @@ namespace AdvancedTooltip
                     position.Y += txSize.Y;
                 }
 
-                return Math.Abs(position.Y - oldPosition.Y) > EPSILON ? position.Translate(0, MARGIN_BOTTOM) : oldPosition;
+                return Math.Abs(position.Y - oldPosition.Y) > EPSILON
+                    ? position.Translate(0, MARGIN_BOTTOM)
+                    : oldPosition;
             }
 
             return position;
@@ -336,7 +349,8 @@ namespace AdvancedTooltip
 
             Color[] elementalDmgColors =
             {
-                Color.White, settings.DmgFireColor, settings.DmgColdColor, settings.DmgLightningColor, settings.DmgChaosColor
+                Color.White, settings.DmgFireColor, settings.DmgColdColor, settings.DmgLightningColor,
+                settings.DmgChaosColor
             };
 
             var component = itemEntity.GetComponent<Quality>();
@@ -367,16 +381,20 @@ namespace AdvancedTooltip
             }
 
             var textPosition = new Vector2(clientRect.Right - 15, clientRect.Y + 1);
-            var pDpsSize = pDps > 0 ? Graphics.DrawText(pDps.ToString("#.#"), textPosition, FontAlign.Right) : Vector2N.Zero;
+            var pDpsSize = pDps > 0
+                ? Graphics.DrawText(pDps.ToString("#.#"), textPosition, FontAlign.Right)
+                : Vector2N.Zero;
 
             var eDpsSize = eDps > 0
-                ? Graphics.DrawText(eDps.ToString("#.#"), textPosition.Translate(0, pDpsSize.Y), DpsColor, FontAlign.Right)
+                ? Graphics.DrawText(eDps.ToString("#.#"), textPosition.Translate(0, pDpsSize.Y), DpsColor,
+                    FontAlign.Right)
                 : Vector2N.Zero;
 
             var dps = pDps + eDps;
 
             var dpsSize = dps > 0
-                ? Graphics.DrawText(dps.ToString("#.#"), textPosition.Translate(0, pDpsSize.Y + eDpsSize.Y), Color.White, FontAlign.Right)
+                ? Graphics.DrawText(dps.ToString("#.#"), textPosition.Translate(0, pDpsSize.Y + eDpsSize.Y),
+                    Color.White, FontAlign.Right)
                 : Vector2N.Zero;
 
             var dpsTextPosition = textPosition.Translate(0, pDpsSize.Y + eDpsSize.Y + dpsSize.Y);
