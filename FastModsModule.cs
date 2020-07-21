@@ -185,6 +185,8 @@ namespace AdvancedTooltip
                 if (currentModTierInfo != null)
                 {
                     var modLine = Regex.Replace(extendedModsLine, @"\([\d-]+\)", string.Empty);
+                    modLine = Regex.Replace(modLine, @"\s\([\d]+% Increased\)", string.Empty);
+
                     if (!modsDict.ContainsKey(modLine))
                     {
                         modsDict[modLine] = currentModTierInfo;
