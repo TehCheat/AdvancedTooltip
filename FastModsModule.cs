@@ -29,7 +29,7 @@ namespace AdvancedTooltip
             _modsSettings = modsSettings;
         }
 
-        public void DrawUiHoverFastMods(Element tooltip)
+        public void DrawUiHoverFastMods(Element tooltip, Vector2 fixDrawPos)
         {
             try
             {
@@ -42,16 +42,28 @@ namespace AdvancedTooltip
                 var drawPos = new Vector2(tooltip.GetClientRectCache.X - 3, rect.Top);
                 var height = rect.Height / _mods.Count;
 
-                foreach (var modTierInfo in _mods)
+                if (fixDrawPos != Vector2.Zero)
                 {
+                    var offset = tooltip.GetClientRectCache.TopLeft - _regularModsElement.GetClientRectCache.TopLeft;
+                    drawPos = fixDrawPos - offset;
+                }
+
+                for (var i = 0; i < _mods.Count; i++)
+                {
+                    var modTierInfo = _mods[i];
+                    var boxHeight = height * modTierInfo.ModLines;
+
                     var textSize = _graphics.DrawText(modTierInfo.DisplayName,
-                        drawPos.Translate(0, height / 2), modTierInfo.Color,
+                        drawPos.Translate(0, boxHeight / 2), modTierInfo.Color,
                         FontAlign.Right | FontAlign.VerticalCenter);
 
-                    _graphics.DrawBox(
-                        new RectangleF(drawPos.X - textSize.X - 3, drawPos.Y, textSize.X + 6, height),
-                        Color.Black);
-                    drawPos.Y += height;
+                    var rectangleF = new RectangleF(drawPos.X - textSize.X - 3, drawPos.Y, textSize.X + 6,
+                        height * modTierInfo.ModLines);
+                    _graphics.DrawBox(rectangleF, Color.Black);
+                    _graphics.DrawFrame(rectangleF, Color.Gray, 1);
+
+                    drawPos.Y += boxHeight;
+                    i += modTierInfo.ModLines - 1;
                 }
             }
             catch (Exception e)
@@ -109,6 +121,11 @@ namespace AdvancedTooltip
 
             foreach (var extendedModsLine in extendedModsLines)
             {
+                if (extendedModsLine.StartsWith("<italic>"))
+                {
+                    continue;
+                }
+
                 if (extendedModsLine.StartsWith("<smaller>") || extendedModsLine.StartsWith("<crafted>"))
                 {
                     var isPrefix = extendedModsLine.Contains("Prefix");
@@ -202,14 +219,28 @@ namespace AdvancedTooltip
                 if (!found)
                 {
                     DebugWindow.LogMsg($"Cannot extract mod from parsed mods: {modFixed}", 4);
-                    modTierInfos.Add(new ModTierInfo("?", Color.Gray));
+                    var modTierInfo = new ModTierInfo("?", Color.Gray);
+                    modTierInfos.Add(modTierInfo);
                     //return;
+                }
+            }
+
+            if (modTierInfos.Count > 1)
+            {
+                for (var i = 1; i < modTierInfos.Count; i++)
+                {
+                    var info = modTierInfos[i];
+                    var prevInfo = modTierInfos[i - 1];
+
+                    if (info == prevInfo)
+                    {
+                        info.ModLines++;
+                    }
                 }
             }
 
             _mods = modTierInfos;
         }
-
 
         private class ModTierInfo
         {
@@ -221,6 +252,11 @@ namespace AdvancedTooltip
 
             public string DisplayName { get; }
             public Color Color { get; }
+
+            /// <summary>
+            /// Mean twinned mod
+            /// </summary>
+            public int ModLines { get; set; } = 1;
         }
     }
 }

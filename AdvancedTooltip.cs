@@ -97,6 +97,13 @@ namespace AdvancedTooltip
             var poeEntity = inventoryItemIcon.Item;
 
             Draw(tooltip, poeEntity);
+
+            if (inventoryItemIcon.ItemInChatTooltip.Address != 0)
+            {
+                var tooltipReal = inventoryItemIcon.ItemInChatTooltip.GetChildAtIndex(1);
+                var fixDrawPos =  Input.MousePosition + new Vector2(80, 0);
+                _fastMods.DrawUiHoverFastMods(tooltipReal, fixDrawPos);
+            }
         }
 
 
@@ -173,11 +180,12 @@ namespace AdvancedTooltip
                 }
             }
 
-            if (Settings.WeaponDps.Enable && poeEntity.HasComponent<Weapon>()) 
+            if (Settings.WeaponDps.Enable && poeEntity.HasComponent<Weapon>())
                 DrawWeaponDps(tooltipRect);
 
-            if(modsComponent != null && (modsComponent.ItemRarity == ItemRarity.Magic || modsComponent.ItemRarity == ItemRarity.Rare))
-                _fastMods.DrawUiHoverFastMods(tooltip);
+            if (modsComponent != null && (modsComponent.ItemRarity == ItemRarity.Magic ||
+                                          modsComponent.ItemRarity == ItemRarity.Rare))
+                _fastMods.DrawUiHoverFastMods(tooltip, Vector2.Zero);
         }
 
         private Vector2 DrawMod(ModValue item, Vector2 position)
