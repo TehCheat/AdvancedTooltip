@@ -102,6 +102,7 @@ namespace AdvancedTooltip
             {
                 var tooltipReal = inventoryItemIcon.ItemInChatTooltip.GetChildAtIndex(1);
                 var fixDrawPos =  Input.MousePosition + new Vector2(80, 0);
+
                 _fastMods.DrawUiHoverFastMods(tooltipReal, fixDrawPos);
             }
         }
