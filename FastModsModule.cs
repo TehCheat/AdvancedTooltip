@@ -189,7 +189,11 @@ namespace AdvancedTooltip
                 if (currentModTierInfo != null)
                 {
                     var modLine = Regex.Replace(extendedModsLine, @"\([\d-.]+\)", string.Empty);
+                    modLine = Regex.Replace(modLine, @"[\d-.]+", "#");
                     modLine = Regex.Replace(modLine, @"\s\([\d]+% Increased\)", string.Empty);
+                    modLine = modLine.Replace(" (#% Increased)", string.Empty);
+                    if (modLine.StartsWith("+"))
+                        modLine = modLine.Substring(1);
 
                     if (!modsDict.ContainsKey(modLine))
                     {
@@ -205,10 +209,12 @@ namespace AdvancedTooltip
                 if (modFixed.StartsWith("+"))
                     modFixed = modFixed.Substring(1);
 
+                modFixed = Regex.Replace(modFixed, @"[\d-.]+", "#");
+
                 var found = false;
                 foreach (var keyValuePair in modsDict)
                 {
-                    if (regularModsLine.Contains(keyValuePair.Key))
+                    if (modFixed.Contains(keyValuePair.Key))
                     {
                         found = true;
                         modTierInfos.Add(keyValuePair.Value);
