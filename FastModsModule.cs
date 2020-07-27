@@ -22,6 +22,7 @@ namespace AdvancedTooltip
         private Element _regularModsElement;
         private List<ModTierInfo> _mods = new List<ModTierInfo>();
         private Element _tooltip;
+        private Regex _modTypeRegex = new Regex(@"\<rgb\(\d+\,\d+\,\d+\)\>\{([\w ]+)\}");
 
         public FastModsModule(Graphics graphics, ItemModsSettings modsSettings)
         {
@@ -53,14 +54,37 @@ namespace AdvancedTooltip
                     var modTierInfo = _mods[i];
                     var boxHeight = height * modTierInfo.ModLines;
 
+                    var textPos = drawPos.Translate(0, boxHeight / 2);
+
                     var textSize = _graphics.DrawText(modTierInfo.DisplayName,
-                        drawPos.Translate(0, boxHeight / 2), modTierInfo.Color,
+                        textPos, modTierInfo.Color,
                         FontAlign.Right | FontAlign.VerticalCenter);
+
+                    textSize.X += 5;
+                    textPos.X -= textSize.X + 5;
+                
+                    var initialTextSize = textSize;
+
+
+                    foreach (var modType in modTierInfo.ModTypes)
+                    {
+                        var modTypetextSize = _graphics.DrawText(modType.Name, textPos, modType.Color,
+                            FontAlign.Right | FontAlign.VerticalCenter);
+
+                        textSize.X += modTypetextSize.X + 5;
+                        textPos.X -= modTypetextSize.X + 5;
+                    }
+
+                    if(modTierInfo.ModTypes.Count > 0)
+                        textSize.X += 5;
 
                     var rectangleF = new RectangleF(drawPos.X - textSize.X - 3, drawPos.Y, textSize.X + 6,
                         height * modTierInfo.ModLines);
                     _graphics.DrawBox(rectangleF, Color.Black);
                     _graphics.DrawFrame(rectangleF, Color.Gray, 1);
+
+                    _graphics.DrawFrame(new RectangleF(drawPos.X - initialTextSize.X - 3, drawPos.Y, initialTextSize.X + 6,
+                        height * modTierInfo.ModLines), Color.Gray, 1);
 
                     drawPos.Y += boxHeight;
                     i += modTierInfo.ModLines - 1;
@@ -173,9 +197,81 @@ namespace AdvancedTooltip
                         else if (tier == 3)
                             color = _modsSettings.T3Color.Value;
                     }
+                    else if (extendedModsLine.Contains("Essence"))
+                    {
+                        affix += "(Ess)";
+                    }
 
 
                     currentModTierInfo = new ModTierInfo(affix, color);
+
+
+                    var modTypesMatches = _modTypeRegex.Matches(extendedModsLine);
+                    if (modTypesMatches.Count > 0)
+                    {
+                        foreach (Match modTypeMatch in modTypesMatches)
+                        {
+                            var modTypeValue = modTypeMatch.Groups[1].Value;
+                            var modTypeColor = Color.Gray;
+
+
+                            switch (modTypeValue)
+                            {
+                                case "Fire":
+                                    modTypeColor = Color.Red;
+                                    break;
+
+                                case "Cold":
+                                    modTypeColor = new Color(41, 102, 241);
+                                    break;
+
+                                case "Life":
+                                    modTypeColor = Color.Magenta;
+                                    break;
+
+                                case "Lightning":
+                                    modTypeColor = Color.Yellow;
+                                    break;
+
+                                case "Physical":
+                                    modTypeColor = new Color(225, 170, 20);
+                                    break;
+
+                                case "Critical":
+                                    modTypeColor = new Color(168, 220, 26);
+                                    break;
+
+                                case "Mana":
+                                    modTypeColor = new Color(20, 240, 255);
+                                    break;
+
+                                case "Attack":
+                                    modTypeColor = new Color(240, 100, 30);
+                                    break;
+
+                                case "Speed":
+                                    modTypeColor = new Color(0, 255, 192);
+                                    break;
+
+                                case "Caster":
+                                    modTypeColor = new Color(216, 0, 255);
+                                    break;
+
+                                case "Elemental":
+                                    modTypeColor = Color.White;
+                                    break;
+
+                                case "Gem Level":
+                                    modTypeColor = new Color(200, 230, 160);
+                                    break;
+                            }
+
+
+                            currentModTierInfo.ModTypes.Add(new ModType(modTypeValue, modTypeColor));
+                        }
+                    }
+
+
                     continue;
                 }
 
@@ -258,11 +354,24 @@ namespace AdvancedTooltip
 
             public string DisplayName { get; }
             public Color Color { get; }
+            public List<ModType> ModTypes { get; set; } = new List<ModType>();
 
             /// <summary>
             /// Mean twinned mod
             /// </summary>
             public int ModLines { get; set; } = 1;
+        }
+
+        public class ModType
+        {
+            public ModType(string name, Color color)
+            {
+                Name = name;
+                Color = color;
+            }
+
+            public string Name { get; }
+            public Color Color { get; }
         }
     }
 }
