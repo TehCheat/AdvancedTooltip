@@ -90,7 +90,7 @@ namespace AdvancedTooltip
                     i += modTierInfo.ModLines - 1;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //ignored   
             }
