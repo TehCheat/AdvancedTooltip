@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using AdvancedTooltip.Settings;
 using ExileCore;
 using ExileCore.PoEMemory;
-using ExileCore.PoEMemory.Elements;
 using ExileCore.PoEMemory.MemoryObjects;
 using ExileCore.Shared.Enums;
 using ExileCore.Shared.Helpers;
@@ -22,7 +20,7 @@ namespace AdvancedTooltip
         private Element _regularModsElement;
         private List<ModTierInfo> _mods = new List<ModTierInfo>();
         private Element _tooltip;
-        private Regex _modTypeRegex = new Regex(@"\<rgb\(\d+\,\d+\,\d+\)\>\{([\w ]+)\}");
+        private readonly Regex _modTypeRegex = new Regex(@"\<rgb\(\d+\,\d+\,\d+\)\>\{([\w ]+)\}", RegexOptions.Compiled);
 
         public FastModsModule(Graphics graphics, ItemModsSettings modsSettings)
         {
@@ -183,7 +181,10 @@ namespace AdvancedTooltip
                         }
                     }
 
-                    if (tierPos != -1 && int.TryParse(extendedModsLine.Substring(tierPos, 1), out var tier))
+                    if (tierPos != -1 &&
+                        (int.TryParse(extendedModsLine.Substring(tierPos, 2), out var tier) ||//try parse number 10 and up
+                         int.TryParse(extendedModsLine.Substring(tierPos, 1), out tier))
+                        )
                     {
                         if (isRank)
                             affix += $" Rank{tier}";
