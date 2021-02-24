@@ -42,14 +42,6 @@ namespace AdvancedTooltip
                 {1, Settings.ItemMods.T1Color}, {2, Settings.ItemMods.T2Color}, {3, Settings.ItemMods.T3Color}
             };
 
-            Input.RegisterKey(Keys.F9);
-
-            Input.ReleaseKey += (sender, keys) =>
-            {
-                if (keys == Keys.F9) Settings.ItemMods.Enable.Value = !Settings.ItemMods.Enable.Value;
-            };
-
-
             return true;
         }
 
