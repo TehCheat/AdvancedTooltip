@@ -53,6 +53,7 @@
   <ItemGroup>
     <Reference Include="GameOffsets">
       <HintPath>..\..\..\..\PoEHelper\GameOffsets.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10">
