@@ -8,6 +8,7 @@ using ExileCore.PoEMemory.MemoryObjects;
 using ExileCore.Shared.Enums;
 using ExileCore.Shared.Helpers;
 using SharpDX;
+using GameOffsets;
 
 namespace AdvancedTooltip
 {
@@ -129,11 +130,11 @@ namespace AdvancedTooltip
         {
             _mods.Clear();
             var extendedModsStr =
-                NativeStringReader.ReadString(extendedModsElement.Address + 0x2E8, tooltip.M, 5000);
+                NativeStringReader.ReadString(extendedModsElement.Address + EntityLabelMapOffsets.LabelOffset, tooltip.M, 5000);
             var extendedModsLines = extendedModsStr.Replace("\r\n", "\n").Split('\n');
 
             var regularModsStr =
-                NativeStringReader.ReadString(_regularModsElement.Address + 0x2E8, tooltip.M, 5000);
+                NativeStringReader.ReadString(_regularModsElement.Address + EntityLabelMapOffsets.LabelOffset, tooltip.M, 5000);
             var regularModsLines = regularModsStr.Replace("\r\n", "\n").Split('\n');
 
 

@@ -63,7 +63,7 @@ namespace AdvancedTooltip
 
         private void DrawUiHover()
         {
-            var uiHover = GameController.Game.IngameState.UIHover;
+            var uiHover = GameController?.Game?.IngameState?.UIHover;
             if (uiHover?.Address == 0) return;
             var inventoryItemIcon = uiHover?.AsObject<HoverItemIcon>();
 
