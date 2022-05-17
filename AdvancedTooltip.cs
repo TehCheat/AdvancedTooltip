@@ -120,8 +120,12 @@ namespace AdvancedTooltip
                     itemMods.Any(x => string.IsNullOrEmpty(x.RawName) && string.IsNullOrEmpty(x.Name)))
                     return;
 
-                mods = itemMods?.Select(item => new ModValue(item, GameController.Files, modsComponent.ItemLevel,
-                    GameController.Files.BaseItemTypes.Translate(poeEntity.Path))).ToList();
+                mods = itemMods
+                    ?.Select(
+                        item => new ModValue(item, GameController.Files, modsComponent.ItemLevel, 
+                            GameController.Files.BaseItemTypes.Translate(poeEntity.Path))
+                        )
+                    ?.ToList();
 
                 itemEntity = poeEntity;
             }
