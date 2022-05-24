@@ -18,10 +18,8 @@ namespace AdvancedTooltip
     public class AdvancedTooltip : BaseSettingsPlugin<AdvancedTooltipSettings>
     {
         private string affix;
-        private bool canRender;
         private Entity itemEntity;
         private List<ModValue> mods = new List<ModValue>();
-        private long ModsHash;
         private Vector2N nextLine = Vector2N.Zero;
         private readonly string symbol = " X";
         private Color TColor;
@@ -43,19 +41,6 @@ namespace AdvancedTooltip
             };
 
             return true;
-        }
-
-        public override Job Tick()
-        {
-            canRender = true;
-
-            if (GameController.IsLoading)
-            {
-                canRender = false;
-                return null;
-            }
-
-            return null;
         }
 
         public override void Render()
@@ -188,7 +173,7 @@ namespace AdvancedTooltip
         private Vector2 DrawMod(ModValue item, Vector2 position)
         {
             const float EPSILON = 0.001f;
-            const int MARGIN_BOTTOM = 4, MARGIN_LEFT = 50;
+            const int MARGIN_BOTTOM = 4;
             var oldPosition = position;
             var settings = Settings.ItemMods;
             var x = 0f;
@@ -276,8 +261,6 @@ namespace AdvancedTooltip
                     ? position.Translate(0, MARGIN_BOTTOM)
                     : oldPosition;
             }
-
-            return position;
         }
 
         private void DrawWeaponDps(RectangleF clientRect)
